@@ -31,7 +31,7 @@ func NewReadCommand() *ReadCommand {
 	c.fs.StringVar(&c.uart, "uart", "", "UART device (/dev/ttyS0)")
 	c.fs.StringVar(&c.trigger, "trigger", "", "Trigger GPIO pin (14)")
 	c.fs.StringVar(&c.echo, "echo", "", "Echo GPIO pin (15)")
-	c.fs.BoolVar(&c.continuous, "continous", false, "Continous reading")
+	c.fs.BoolVar(&c.continuous, "continuous", false, "Continous reading")
 
 	return c
 }
