@@ -1,7 +1,6 @@
 package gpio
 
 import (
-	"fmt"
 	"time"
 
 	"periph.io/x/conn/v3/gpio"
@@ -49,25 +48,32 @@ func (d *dev) senseDistance() (physic.Distance, error) {
 		return 0, err
 	}
 
+	err = d.echoPin.In(gpio.PullNoChange, gpio.RisingEdge)
+	if err != nil {
+		return 0, err
+	}
+
+	_ = d.echoPin.WaitForEdge(-1)
+
+	start := time.Now()
+
+	err = d.echoPin.In(gpio.PullNoChange, gpio.FallingEdge)
+	if err != nil {
+		return 0, err
+	}
+
+	_ = d.echoPin.WaitForEdge(-1)
+
+	pulseTime := time.Since(start)
+
+	// stop edge detection
 	err = d.echoPin.In(gpio.PullNoChange, gpio.NoEdge)
 	if err != nil {
 		return 0, err
 	}
 
-	for d.echoPin.Read() == gpio.Low {
-		// wait
-	}
-
-	start := time.Now()
-
-	for d.echoPin.Read() == gpio.High {
-		// wait
-	}
-
-	fmt.Printf("pulse time: %s\n", time.Since(start))
-
 	// speed of sound is 343m/s, and we're doing round trip so divide time by two
-	distanceRaw := float64(time.Since(start)) * 343 / 2
+	distanceRaw := float64(pulseTime) * 343 / 2
 	// duration is in nanoseconds, so multiply by nanometer
 	distance := physic.Distance(distanceRaw) * physic.NanoMetre
 
