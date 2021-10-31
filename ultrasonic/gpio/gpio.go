@@ -1,6 +1,7 @@
 package gpio
 
 import (
+	"fmt"
 	"time"
 
 	"periph.io/x/conn/v3/gpio"
@@ -53,7 +54,10 @@ func (d *dev) senseDistance() (physic.Distance, error) {
 		return 0, err
 	}
 
-	_ = d.echoPin.WaitForEdge(-1)
+	ok := d.echoPin.WaitForEdge(time.Second)
+	if !ok {
+		return 0, fmt.Errorf("timeout waiting for edge")
+	}
 
 	start := time.Now()
 
@@ -62,7 +66,10 @@ func (d *dev) senseDistance() (physic.Distance, error) {
 		return 0, err
 	}
 
-	_ = d.echoPin.WaitForEdge(-1)
+	ok = d.echoPin.WaitForEdge(time.Second)
+	if !ok {
+		return 0, fmt.Errorf("timeout waiting for edge")
+	}
 
 	pulseTime := time.Since(start)
 
