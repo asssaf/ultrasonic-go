@@ -49,26 +49,26 @@ func (d *dev) senseDistance() (physic.Distance, error) {
 		return 0, err
 	}
 
-	err = d.echoPin.In(gpio.PullNoChange, gpio.RisingEdge)
+	err = d.echoPin.In(gpio.PullNoChange, gpio.BothEdges)
 	if err != nil {
 		return 0, err
 	}
 
 	ok := d.echoPin.WaitForEdge(time.Second)
 	if !ok {
-		return 0, fmt.Errorf("timeout waiting for edge")
+		return 0, fmt.Errorf("timeout waiting for rising edge")
 	}
 
 	start := time.Now()
 
-	err = d.echoPin.In(gpio.PullNoChange, gpio.FallingEdge)
+	err = d.echoPin.In(gpio.PullNoChange, gpio.BothEdges)
 	if err != nil {
 		return 0, err
 	}
 
 	ok = d.echoPin.WaitForEdge(time.Second)
 	if !ok {
-		return 0, fmt.Errorf("timeout waiting for edge")
+		return 0, fmt.Errorf("timeout waiting for falling edge")
 	}
 
 	pulseTime := time.Since(start)
