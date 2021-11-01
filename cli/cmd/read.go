@@ -6,12 +6,13 @@ import (
 	"log"
 	"time"
 
+	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/gpio/gpioreg"
 	"periph.io/x/conn/v3/uart/uartreg"
 	"periph.io/x/host/v3"
 
 	"github.com/asssaf/ultrasonic-go/ultrasonic"
-	"github.com/asssaf/ultrasonic-go/ultrasonic/gpio"
+	ultrasonic_gpio "github.com/asssaf/ultrasonic-go/ultrasonic/gpio"
 	"github.com/asssaf/ultrasonic-go/ultrasonic/uart"
 )
 
@@ -20,6 +21,7 @@ type ReadCommand struct {
 	uart       string
 	trigger    string
 	echo       string
+	power      string
 	continuous bool
 }
 
@@ -31,6 +33,7 @@ func NewReadCommand() *ReadCommand {
 	c.fs.StringVar(&c.uart, "uart", "", "UART device (/dev/ttyS0)")
 	c.fs.StringVar(&c.trigger, "trigger", "", "Trigger GPIO pin (14)")
 	c.fs.StringVar(&c.echo, "echo", "", "Echo GPIO pin (15)")
+	c.fs.StringVar(&c.power, "power", "", "Optional power GPIO pin")
 	c.fs.BoolVar(&c.continuous, "continuous", false, "Continous reading")
 
 	return c
@@ -87,8 +90,20 @@ func (c *ReadCommand) Execute() error {
 			log.Fatalf("couldn't find pin: %s", c.echo)
 		}
 
+		if c.power != "" {
+			power := gpioreg.ByName(c.power)
+			if power == nil {
+				log.Fatalf("couldn't find pin: %s", c.power)
+			}
+
+			err := power.Out(gpio.High)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
 		var err error
-		dev, err = gpio.NewGPIO(trigger, echo)
+		dev, err = ultrasonic_gpio.NewGPIO(trigger, echo)
 		if err != nil {
 			log.Fatal(err)
 		}
