@@ -49,9 +49,13 @@ func (d *dev) senseDistance() (physic.Distance, error) {
 		return 0, err
 	}
 
-	err = d.echoPin.In(gpio.PullNoChange, gpio.BothEdges)
+	err = d.echoPin.In(gpio.PullDown, gpio.RisingEdge)
 	if err != nil {
 		return 0, err
+	}
+
+	if d.echoPin.Read() == gpio.High {
+		return 0, fmt.Errorf("echo is high before timer was started")
 	}
 
 	ok := d.echoPin.WaitForEdge(time.Second)
