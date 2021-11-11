@@ -8,7 +8,6 @@ import (
 
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/gpio/gpioreg"
-	"periph.io/x/conn/v3/uart/uartreg"
 	"periph.io/x/host/v3"
 
 	"github.com/asssaf/ultrasonic-go/ultrasonic"
@@ -65,11 +64,9 @@ func (c *ReadCommand) Execute() error {
 			log.Fatal("Can't use -trigger or -echo when -uart is used")
 		}
 
-		uartPort, err := uartreg.Open(c.uart)
-		if err != nil {
-			log.Fatal(err)
-		}
+		uartPort := uart.NewPort(c.uart)
 
+		var err error
 		dev, err = uart.NewUart(uartPort)
 		if err != nil {
 			log.Fatal(err)

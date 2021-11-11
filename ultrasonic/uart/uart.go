@@ -69,10 +69,7 @@ func (d *dev) senseDistance() (physic.Distance, error) {
 	time.Sleep(100 * time.Millisecond)
 
 	distanceRaw := binary.BigEndian.Uint16(read)
-	distance := physic.Distance(distanceRaw) * physic.MilliMetre * 10
-	// if cap > 4095 {
-	// 	return 0, errors.New(fmt.Sprintf("bad sample: %d", cap))
-	// }
+	distance := physic.Distance(distanceRaw) * physic.MilliMetre
 
 	return distance, nil
 }
@@ -92,7 +89,7 @@ func (d *dev) senseTemperature() (physic.Temperature, error) {
 
 	time.Sleep(100 * time.Millisecond)
 
-	tempRaw := read[0]
+	tempRaw := read[0] - 45
 	temp := physic.ZeroCelsius + physic.Temperature(tempRaw)*physic.Celsius
 
 	return temp, nil
